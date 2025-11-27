@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from datetime import datetime, UTC
+from pydantic import BaseModel
+
 
 app = FastAPI()
 
@@ -10,9 +12,18 @@ fake_db = [
     {'titulo': f'intercionalizando um app com Selenium', 'date': datetime.now(UTC), 'published': True},
 ]
 
-@app.get('/posts')
+class Post(BaseModel):
+    title: str
+    date: datetime = datetime.now(UTC)
+    published: bool = False
+
+@app.post('/posts/')
+def create_post(post: Post):
+    return post
+
+@app.get('/posts/')
 def read_posts(skip: int =0, limit: int = len(fake_db), published: bool = True): # Parâmetros de consulta com valores padrão
-    return [post for post in fake_db[skip: skip + limit] if post ['published'] is published] # Retorna posts filtrados por publicação, com paginação
+    return [post for post in fake_db[skip: skip + limit] if post['published'] is published] # Retorna posts filtrados por publicação, com paginação
 
 @app.get('/posts/{assuntos}') # @ define o endpoint
 def read_framework_posts(assuntos: str):
