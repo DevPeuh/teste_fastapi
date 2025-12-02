@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, status
 from datetime import datetime, UTC
 from pydantic import BaseModel
 
@@ -17,13 +17,20 @@ class Post(BaseModel):
     date: datetime = datetime.now(UTC)
     published: bool = False
 
-@app.post('/posts/')
+@app.post('/posts/', status_code=status.HTTP_201_CREATED)
 def create_post(post: Post):
     return post
 
 @app.get('/posts/')
-def read_posts(skip: int =0, limit: int = len(fake_db), published: bool = True): # Parâmetros de consulta com valores padrão
-    return [post for post in fake_db[skip: skip + limit] if post['published'] is published] # Retorna posts filtrados por publicação, com paginação
+def read_posts(published: bool, limit = int, skip = 0): # Parâmetros de consulta com valores padrão
+    #return [post for post in fake_db[skip: skip + limit] if post['published'] is published] # Retorna posts filtrados por publicação, com paginação
+    posts = []
+    for post in fake_db:
+        if len(posts) == limit:
+            break
+        if post['published'] is published:
+            posts.append(post)
+    return posts
 
 @app.get('/posts/{assuntos}') # @ define o endpoint
 def read_framework_posts(assuntos: str):
