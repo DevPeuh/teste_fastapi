@@ -6,10 +6,10 @@ from pydantic import BaseModel
 app = FastAPI()
 
 fake_db = [
-    {'titulo': f'Criando uma aplicação com FastAPI', 'date': datetime.now(UTC), 'published': True},
-    {'titulo': f'intercionalizando um app com Django', 'date': datetime.now(UTC), 'published': False},
-    {'titulo': f'intercionalizando um app com Flask', 'date': datetime.now(UTC), 'published': True},
-    {'titulo': f'intercionalizando um app com Selenium', 'date': datetime.now(UTC), 'published': True},
+    {'title': f'Criando uma aplicação com FastAPI', 'date': datetime.now(UTC), 'published': True},
+    {'title': f'intercionalizando um app com Django', 'date': datetime.now(UTC), 'published': False},
+    {'title': f'intercionalizando um app com Flask', 'date': datetime.now(UTC), 'published': True},
+    {'title': f'intercionalizando um app com Selenium', 'date': datetime.now(UTC), 'published': True},
 ]
 
 class Post(BaseModel):
@@ -19,6 +19,7 @@ class Post(BaseModel):
 
 @app.post('/posts/', status_code=status.HTTP_201_CREATED)
 def create_post(post: Post):
+    fake_db.append(post.model_dump()) # Adiciona o post ao banco de dados
     return post
 
 @app.get('/posts/')
