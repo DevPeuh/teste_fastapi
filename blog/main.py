@@ -1,6 +1,7 @@
-from fastapi import FastAPI, status
+from fastapi import FastAPI, status, Cookie, Request, Header, Response
 from datetime import datetime, UTC
 from pydantic import BaseModel
+from typing import Annotated
 
 
 app = FastAPI()
@@ -22,9 +23,24 @@ def create_post(post: Post):
     fake_db.append(post.model_dump()) # Adiciona o post ao banco de dados
     return post
 
+# ads_id é um str ou None (opcional),e por padrão será None se o cookie não existir
 @app.get('/posts/')
-def read_posts(published: bool, limit = int, skip = 0): # Parâmetros de consulta com valores padrão
+def read_posts(
+    response: Response,
+    request: Request,
+    published: bool,
+    limit: int,
+    skip: int = 0,
+    ads_id: Annotated[str | None, Cookie()] = None,
+    user_agent: Annotated[str | None, Header()] = None, # User-Agent do cabeçalho da requisição
+): # Parametros de consulta (query parameters)
+    response.set_cookie(key='User', value='Dev Peuh') # Define um cookie na resposta
+    print(f'User Agent: {user_agent}')
+    print(f'cookie bruto: {request.cookies}') # Acessa todos os cookies da requisição
+    print(f'cookie: {ads_id}')
+
     #return [post for post in fake_db[skip: skip + limit] if post['published'] is published] # Retorna posts filtrados por publicação, com paginação
+
     posts = []
     for post in fake_db:
         if len(posts) == limit:
