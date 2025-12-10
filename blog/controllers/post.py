@@ -1,10 +1,10 @@
-from fastapi import FastAPI, status, Cookie, Request, Header, Response
+from fastapi import FastAPI, status, Cookie, Request, Header, Response, APIRouter
 from datetime import datetime, UTC
 from typing import Annotated
-from blog.main import app
-from blog.schemas.post import PostResquest
-from blog.views.post import PostOut
+from schemas.post import PostResquest
+from views.post import PostOut
 
+router = APIRouter(prefix='/posts')
 
 fake_db = [
     {'title': f'Criando uma aplicação com FastAPI', 'date': datetime.now(UTC), 'published': True},
@@ -14,13 +14,13 @@ fake_db = [
 ]
 
 
-@app.post('/posts/', status_code=status.HTTP_201_CREATED, response_model=PostOut    )
+@router.post('/', status_code=status.HTTP_201_CREATED, response_model=PostOut)
 def create_post(post: PostResquest):
     fake_db.append(post.model_dump()) # Adiciona o post ao banco de dados
     return post
 
 # ads_id é um str ou None (opcional),e por padrão será None se o cookie não existir
-@app.get('/posts/', response_model=list[PostOut])
+@router.get('/', response_model=list[PostOut])
 def read_posts(
     response: Response,
     request: Request,
@@ -35,7 +35,8 @@ def read_posts(
     print(f'cookie bruto: {request.cookies}') # Acessa todos os cookies da requisição
     print(f'cookie: {ads_id}')
 
-    #return [post for post in fake_db[skip: skip + limit] if post['published'] is published] # Retorna posts filtrados por publicação, com paginação
+    #tail = skip + limit
+    #return [post for post in fake_db[skip: tail] if post['published'] is published] # Retorna posts filtrados por publicação, com paginação
 
     posts = []
     for post in fake_db:
@@ -45,7 +46,7 @@ def read_posts(
             posts.append(post)
     return posts
 
-@app.get('/posts/{assuntos}', response_model=PostOut) # @ define o endpoint
+@router.get('/{assuntos}', response_model=PostOut) # @ define o endpoint
 def read_framework_posts(assuntos: str):
     return {
         'Posts': [

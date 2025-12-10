@@ -3,5 +3,6 @@ from datetime import datetime, UTC
 
 class PostOut(BaseModel):
     title: str
-    authot: str
-    published_at = datetime = datetime.now(UTC)
+    #authot: str
+    date: datetime
+    #published_at: datetime = datetime.now(UTC)
